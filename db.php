@@ -1,15 +1,9 @@
-<?php
-/* db-tilkobling
-   Programmet foretar tilkobling til database-server og database
-*/
-
-$host = 'localhost';       // ⚠️ no space before or after
-$username = 'root';
-$password = '';            // XAMPP default has no password
-$database = 'prg120opgave';  // must match phpMyAdmin exactly
+ <?php
+/* db-tilkobling – fungerer lokalt og på Dokploy */
+$host     = getenv('DB_HOST')     ?: '127.0.0.1';
+$username = getenv('DB_USER')     ?: 'root';
+$password = getenv('DB_PASSWORD') ?: '';
+$database = getenv('DB_DATABASE') ?: 'prg120oppgave';
 
 $db = mysqli_connect($host, $username, $password, $database)
-    or die("Ikke kontakt med database-serveren eller databasen.");
-
-/* tilkobling til database-serveren utført */
-?>
+      or die("ikke kontakt med database-server");

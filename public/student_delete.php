@@ -1,77 +1,69 @@
-<?php
-require_once __DIR__ . '/../db.php';
+ <?php
+require __DIR__ . '/../db.php';
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
-$deleted = isset($_GET['deleted']);
-$err = '';
+$ok = isset($_GET['deleted']);
+$rows = [];
+$res = $db->query('SELECT brukernavn, fornavn, etternavn, klassekode FROM student ORDER BY brukernavn');
+while ($r = $res->fetch_assoc()) { $rows[] = $r; }
+$res->close();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $brukernavn = $_POST['brukernavn'] ?? '';
-  if ($brukernavn !== '') {
-    $stmt = mysqli_prepare($db, 'DELETE FROM student WHERE brukernavn = ?');
-    mysqli_stmt_bind_param($stmt, 's', $brukernavn);
-    if (mysqli_stmt_execute($stmt)) {
-      mysqli_stmt_close($stmt);
-      header('Location: student_delete.php?deleted=1');
-      exit;
-    } else {
-      $err = 'Kunne ikke slette studenten.';
-    }
+  $bn = trim($_POST['brukernavn'] ?? '');
+  if ($bn !== '') {
+    $stmt = $db->prepare('DELETE FROM student WHERE brukernavn = ?');
+    $stmt->bind_param('s', $bn);
+    $stmt->execute();
+    $stmt->close();
+    header('Location: student_delete.php?deleted=1');
+    exit;
   }
 }
-
-$result = mysqli_query($db, 'SELECT brukernavn, fornavn, etternavn FROM student ORDER BY brukernavn');
 ?>
-<!DOCTYPE html>
+<!doctype html>
 <html lang="no">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <title>Slett student</title>
-  <style>
-    table { border-collapse: collapse }
-    td, th { border: 1px solid #ccc; padding: .4rem }
-    form { display: inline }
-  </style>
   <script src="funksjoner.js"></script>
+  <style>
+    table { border-collapse: collapse; }
+    th, td { border: 1px solid #bbb; padding: .4rem .6rem; }
+    th { background: #f5f5f5; text-align: left; }
+    .msg{margin:.5rem 0;padding:.5rem .75rem;border-radius:.25rem}
+    .ok{background:#eaffea;border:1px solid #b6e3b6}
+  </style>
 </head>
 <body>
-  <a href="student_list.php">Til liste</a>
-  <h1>Slett student</h1>
-  <?php if ($deleted): ?>
-    <p style="background:#eef;border:1px solid #99f;padding:.5rem">Student slettet!</p>
-  <?php endif; ?>
-  <?php if ($err): ?>
-    <p style="background:#fee;border:1px solid #f99;padding:.5rem"><?=
-      htmlspecialchars($err)
-    ?></p>
-  <?php endif; ?>
+<h1>Slett student</h1>
+<?php if ($ok): ?><div class="msg ok">Student slettet.</div><?php endif; ?>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Brukernavn</th>
-        <th>Navn</th>
-        <th>Handling</th>
-      </tr>
-    </thead>
-    <tbody>
-      <?php while ($row = mysqli_fetch_assoc($result)): ?>
-        <tr>
-          <td><?= htmlspecialchars($row['brukernavn']) ?></td>
-          <td><?= htmlspecialchars($row['fornavn'] . ' ' . $row['etternavn']) ?></td>
-          <td>
-            <form method="post" onsubmit="return bekreft();">
-              <input type="hidden" name="brukernavn" value="<?= htmlspecialchars($row['brukernavn']) ?>">
-              <button type="submit">Slett</button>
-            </form>
-          </td>
-        </tr>
-      <?php endwhile; ?>
-      <?php if (mysqli_num_rows($result) === 0): ?>
-        <tr><td colspan="3">Ingen studenter registrert.</td></tr>
-      <?php endif; ?>
-    </tbody>
-  </table>
+<table>
+  <thead>
+    <tr>
+      <th>Brukernavn</th>
+      <th>Navn</th>
+      <th>Klasse</th>
+      <th>Handling</th>
+    </tr>
+  </thead>
+  <tbody>
+  <?php foreach ($rows as $r): ?>
+    <tr>
+      <td><?= htmlspecialchars($r['brukernavn']) ?></td>
+      <td><?= htmlspecialchars($r['fornavn'] . ' ' . $r['etternavn']) ?></td>
+      <td><?= htmlspecialchars($r['klassekode']) ?></td>
+      <td>
+        <form method="post" onsubmit="return bekreft()" style="display:inline;">
+          <input type="hidden" name="brukernavn" value="<?= htmlspecialchars($r['brukernavn']) ?>">
+          <button type="submit">Slett</button>
+        </form>
+      </td>
+    </tr>
+  <?php endforeach; ?>
+  </tbody>
+</table>
 
-  <p><a href="../index.php">Tilbake til hovedsiden</a></p>
+<p><a href="student_list.php">← Til liste</a></p>
 </body>
 </html>

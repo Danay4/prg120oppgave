@@ -12,7 +12,7 @@ if (isset($_GET['brukernavn'])) {
 <head>
   <meta charset="UTF-8">
   <title>Slett student</title>
-  <script src="../funksjoner.js"></script>
+  <script src="funksjoner.js"></script>
 </head>
 <body>
   <h1>Slett student</h1>

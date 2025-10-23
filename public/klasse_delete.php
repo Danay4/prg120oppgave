@@ -55,6 +55,6 @@ $klasser = mysqli_query($db, "SELECT klassekode, klassenavn, studiumkode FROM kl
     </tbody>
   </table>
 
-  <script src="../funksjoner.js"></script>
+  <script src="funksjoner.js"></script>
 </body>
 </html>

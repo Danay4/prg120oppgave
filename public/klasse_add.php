@@ -43,6 +43,13 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
   <meta charset="utf-8"><title>Klasser – legg til</title>
   <style>label{display:block;margin:.4rem 0}input,button{padding:.4rem}</style>
   <script src="./funksjoner.js?v=1"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      if (typeof visSuksessFraQuery === 'function') {
+        visSuksessFraQuery('Klasse registrert!', 'ok');
+      }
+    });
+  </script>
 </head>
 <body>
   <a href="klasse_list.php">← Til liste</a>
@@ -67,5 +74,6 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
   </form>
 </body>
 </html>
+
 
 

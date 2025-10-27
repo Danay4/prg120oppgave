@@ -47,6 +47,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta charset="UTF-8">
   <title>Registrer student</title>
   <script src="./funksjoner.js?v=1"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      if (typeof visSuksessFraQuery === 'function') {
+        visSuksessFraQuery('Student registrert!', 'ok');
+      }
+    });
+  </script>
 </head>
 <body>
   <h1>Registrer ny student</h1>

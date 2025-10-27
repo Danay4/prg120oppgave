@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/../db.php';
-mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 // Feedback flags
 $ok  = isset($_GET['ok']);
@@ -19,16 +18,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   } else {
     $stmt = mysqli_prepare($db, 'INSERT INTO student (brukernavn, fornavn, etternavn, klassekode) VALUES (?,?,?,?)');
     mysqli_stmt_bind_param($stmt, 'ssss', $brukernavn, $fornavn, $etternavn, $klassekode);
-    try {
-      mysqli_stmt_execute($stmt);
-      mysqli_stmt_close($stmt);
+    if (mysqli_stmt_execute($stmt)) {
       header('Location: student_add.php?ok=1');
       exit;
-    } catch (Throwable $e) {
-      $code = method_exists($e, 'getCode') ? $e->getCode() : 0;
-      if ($code == 1062) {
+    } else {
+      $errno = mysqli_errno($db);
+      if ($errno == 1062) {
         $err = 'Brukernavn finnes fra før. Velg et annet.';
-      } elseif ($code == 1452) { // FK fail (ukjent klassekode)
+      } elseif ($errno == 1452) { // FK fail (ukjent klassekode)
         $err = 'Ugyldig klassekode. Velg en eksisterende klasse.';
       } else {
         $err = 'Kunne ikke lagre på grunn av en teknisk feil.';
@@ -78,3 +75,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <p><a href="../index.php">Tilbake til hovedsiden</a></p>
 </body>
 </html>
+

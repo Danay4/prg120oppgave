@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/../db.php';
-mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 // Friendly feedback flags
 $err = ""; $ok = isset($_GET['ok']);
 
@@ -15,15 +14,13 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
   } else {
     $stmt = mysqli_prepare($db, "INSERT INTO klasse(klassekode, klassenavn, studiumkode) VALUES (?,?,?)");
     mysqli_stmt_bind_param($stmt, "sss", $kode, $navn, $stud);
-    try {
+    if (mysqli_stmt_execute($stmt)) {
       // Success
-      mysqli_stmt_execute($stmt);
-      mysqli_stmt_close($stmt);
       header("Location: klasse_add.php?ok=1"); exit;
-    } catch (Throwable $e) {
+    } else {
       // Duplicate key -> user-friendly message
-      $code = method_exists($e, 'getCode') ? $e->getCode() : 0;
-      if ($code == 1062) {
+      $errno = mysqli_errno($db);
+      if ($errno == 1062) {
         $err = "Klassekode finnes fra før. Velg en annen.";
       } else {
         $err = "Kunne ikke lagre på grunn av en teknisk feil.";

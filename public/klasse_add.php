@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../db.php';
+// Friendly feedback flags
 $err = ""; $ok = isset($_GET['ok']);
 
 if ($_SERVER['REQUEST_METHOD']==='POST') {
@@ -14,9 +15,16 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
     $stmt = mysqli_prepare($db, "INSERT INTO klasse(klassekode, klassenavn, studiumkode) VALUES (?,?,?)");
     mysqli_stmt_bind_param($stmt, "sss", $kode, $navn, $stud);
     if (mysqli_stmt_execute($stmt)) {
+      // Success
       header("Location: klasse_add.php?ok=1"); exit;
     } else {
-      $err = "Kunne ikke lagre (er klassekoden unik?).";
+      // Duplicate key -> user-friendly message
+      $errno = mysqli_errno($db);
+      if ($errno == 1062) {
+        $err = "Klassekode finnes fra før. Velg en annen.";
+      } else {
+        $err = "Kunne ikke lagre på grunn av en teknisk feil.";
+      }
     }
   }
 }

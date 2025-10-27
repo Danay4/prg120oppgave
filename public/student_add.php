@@ -1,16 +1,37 @@
 <?php
 require_once __DIR__ . '/../db.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $brukernavn = $_POST['brukernavn'];
-  $fornavn = $_POST['fornavn'];
-  $etternavn = $_POST['etternavn'];
-  $klassekode = $_POST['klassekode'];
+// Feedback flags
+$ok  = isset($_GET['ok']);
+$err = '';
 
-  $query = "INSERT INTO student (brukernavn, fornavn, etternavn, klassekode)
-            VALUES ('$brukernavn', '$fornavn', '$etternavn', '$klassekode')";
-  mysqli_query($db, $query);
-  echo "<p>Student registrert!</p>";
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $brukernavn = trim($_POST['brukernavn'] ?? '');
+  $fornavn    = trim($_POST['fornavn'] ?? '');
+  $etternavn  = trim($_POST['etternavn'] ?? '');
+  $klassekode = trim($_POST['klassekode'] ?? '');
+
+  if ($brukernavn === '' || $fornavn === '' || $etternavn === '' || $klassekode === '') {
+    $err = 'Fyll ut alle feltene.';
+  } elseif (strlen($brukernavn) > 7) {
+    $err = 'Brukernavn kan være maks 7 tegn.';
+  } else {
+    $stmt = mysqli_prepare($db, 'INSERT INTO student (brukernavn, fornavn, etternavn, klassekode) VALUES (?,?,?,?)');
+    mysqli_stmt_bind_param($stmt, 'ssss', $brukernavn, $fornavn, $etternavn, $klassekode);
+    if (mysqli_stmt_execute($stmt)) {
+      header('Location: student_add.php?ok=1');
+      exit;
+    } else {
+      $errno = mysqli_errno($db);
+      if ($errno == 1062) {
+        $err = 'Brukernavn finnes fra før. Velg et annet.';
+      } elseif ($errno == 1452) { // FK fail (ukjent klassekode)
+        $err = 'Ugyldig klassekode. Velg en eksisterende klasse.';
+      } else {
+        $err = 'Kunne ikke lagre på grunn av en teknisk feil.';
+      }
+    }
+  }
 }
 ?>
 <!DOCTYPE html>
@@ -21,10 +42,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
   <h1>Registrer ny student</h1>
+  <?php if ($ok): ?>
+    <p style="background:#eef;border:1px solid #99f;padding:.5rem">Student registrert!</p>
+  <?php endif; ?>
+  <?php if ($err): ?>
+    <p style="background:#fee;border:1px solid #f99;padding:.5rem"><?php echo htmlspecialchars($err); ?></p>
+  <?php endif; ?>
 
   <form method="post">
     <label>Brukernavn:</label>
-    <input type="text" name="brukernavn" required><br>
+    <input type="text" name="brukernavn" maxlength="7" required><br>
 
     <label>Fornavn:</label>
     <input type="text" name="fornavn" required><br>

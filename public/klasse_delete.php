@@ -10,27 +10,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $kode = trim($_POST['klassekode'] ?? '');
     if ($kode !== '') {
         try {
-            // Delete students first, then the class (no FK crash)
-            $db->begin_transaction();
-
-            $s1 = $db->prepare('DELETE FROM student WHERE klassekode = ?');
-            $s1->bind_param('s', $kode);
-            $s1->execute();
-            $s1->close();
-
-            $s2 = $db->prepare('DELETE FROM klasse WHERE klassekode = ?');
-            $s2->bind_param('s', $kode);
-            $s2->execute();
-            $s2->close();
-
-            $db->commit();
-
-            // Reload page so the table updates (row disappears)
+            // Do NOT delete students automatically; prevent deletion if referenced
+            $stmt = $db->prepare('DELETE FROM klasse WHERE klassekode = ?');
+            $stmt->bind_param('s', $kode);
+            $stmt->execute();
+            $stmt->close();
             header('Location: klasse_delete.php?deleted=1');
             exit;
         } catch (Throwable $e) {
-            if ($db->errno) { $db->rollback(); }
-            $err = 'Kunne ikke slette (teknisk feil).';
+            // 1451 = FK prevents deleting parent with existing children
+            $code = method_exists($e, 'getCode') ? $e->getCode() : 0;
+            if ($code == 1451) {
+                $err = 'Kan ikke slette klasse som har studenter registrert.';
+            } else {
+                $err = 'Kunne ikke slette (teknisk feil).';
+            }
         }
     } else {
         $err = 'Ugyldig klassekode.';

@@ -22,8 +22,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
       mysqli_stmt_execute($stmt);
       mysqli_stmt_close($stmt);
-      header('Location: student_add.php?ok=1');
-      exit;
+      if (!headers_sent()) {
+        header('Location: student_add.php?ok=1');
+        exit;
+      } else {
+        $ok = true; // fallback: show success without redirect
+      }
     } catch (Throwable $e) {
       $code = method_exists($e, 'getCode') ? $e->getCode() : 0;
       if ($code == 1062) {

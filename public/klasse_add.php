@@ -19,7 +19,12 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
       // Success
       mysqli_stmt_execute($stmt);
       mysqli_stmt_close($stmt);
-      header("Location: klasse_add.php?ok=1"); exit;
+      if (!headers_sent()) {
+        header("Location: klasse_add.php?ok=1");
+        exit;
+      } else {
+        $ok = true; // fallback if redirect headers already sent
+      }
     } catch (Throwable $e) {
       // Duplicate key -> user-friendly message
       $code = method_exists($e, 'getCode') ? $e->getCode() : 0;

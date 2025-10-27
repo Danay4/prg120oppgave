@@ -1,4 +1,4 @@
-ï»¿<?php
+<?php
 require_once __DIR__ . '/../db.php';
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if ($brukernavn === '' || $fornavn === '' || $etternavn === '' || $klassekode === '') {
     $err = 'Fyll ut alle feltene.';
   } elseif (strlen($brukernavn) > 7) {
-    $err = 'Brukernavn kan vÃ¦re maks 7 tegn.';
+    $err = 'Brukernavn kan være maks 7 tegn.';
   } else {
     $stmt = mysqli_prepare($db, 'INSERT INTO student (brukernavn, fornavn, etternavn, klassekode) VALUES (?,?,?,?)');
     mysqli_stmt_bind_param($stmt, 'ssss', $brukernavn, $fornavn, $etternavn, $klassekode);
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       } elseif ($code == 1452) { // FK fail (ukjent klassekode)
         $err = 'Ugyldig klassekode. Velg en eksisterende klasse.';
       } else {
-        $err = 'Kunne ikke lagre pÃ¥ grunn av en teknisk feil.';
+        $err = 'Kunne ikke lagre på grunn av en teknisk feil.';
       }
     }
   }
@@ -83,9 +83,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <input type="submit" value="Lagre student">
   </form>
 
-  <p><a href="../index.php">Tilbake til hovedsiden</a></p>
+  <p><a href="index.php">Tilbake til hovedsiden</a></p>
 </body>
 </html>
+
 
 
 

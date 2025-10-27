@@ -31,6 +31,7 @@ require_once __DIR__ . '/../db.php';
     ?>
   </table>
 
-  <p><a href="../index.php">Tilbake til hovedsiden</a></p>
+  <p><a href="index.php">Tilbake til hovedsiden</a></p>
 </body>
 </html>
+

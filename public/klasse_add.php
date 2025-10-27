@@ -37,11 +37,15 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
 <head>
   <meta charset="utf-8"><title>Klasser – legg til</title>
   <style>label{display:block;margin:.4rem 0}input,button{padding:.4rem}</style>
+  <script src="./funksjoner.js?v=1"></script>
 </head>
 <body>
   <a href="klasse_list.php">← Til liste</a>
   <h1>Legg til klasse</h1>
-  <?php if($ok): ?><p style="background:#eef;border:1px solid #99f;padding:.5rem">Lagret!</p><?php endif; ?>
+  <?php if($ok): ?>
+    <p style="background:#eef;border:1px solid #99f;padding:.5rem">Lagret!</p>
+    <script>(typeof visBekreftelse==='function'?visBekreftelse:alert)('Klasse registrert!');</script>
+  <?php endif; ?>
   <?php if($err): ?><p style="background:#fee;border:1px solid #f99;padding:.5rem"><?= htmlspecialchars($err) ?></p><?php endif; ?>
 
   <form method="post">
@@ -58,4 +62,5 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
   </form>
 </body>
 </html>
+
 

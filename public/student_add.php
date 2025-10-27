@@ -42,11 +42,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
   <meta charset="UTF-8">
   <title>Registrer student</title>
+  <script src="./funksjoner.js?v=1"></script>
 </head>
 <body>
   <h1>Registrer ny student</h1>
   <?php if ($ok): ?>
     <p style="background:#eef;border:1px solid #99f;padding:.5rem">Student registrert!</p>
+    <script>(typeof visBekreftelse==='function'?visBekreftelse:alert)('Student registrert!');</script>
   <?php endif; ?>
   <?php if ($err): ?>
     <p style="background:#fee;border:1px solid #f99;padding:.5rem"><?php echo htmlspecialchars($err); ?></p>

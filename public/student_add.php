@@ -1,10 +1,12 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/../db.php';
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 // Feedback flags
-$ok  = isset($_GET['ok']);
 $err = '';
+$flash = $_SESSION['flash_success'] ?? '';
+if ($flash !== '') { unset($_SESSION['flash_success']); }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $brukernavn = trim($_POST['brukernavn'] ?? '');
@@ -23,15 +25,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       mysqli_stmt_execute($stmt);
       mysqli_stmt_close($stmt);
       if (!headers_sent()) {
-        header('Location: student_add.php?ok=1');
+        $_SESSION['flash_success'] = 'Du er registrert!';
+        header('Location: student_add.php');
         exit;
       } else {
-        $ok = true; // fallback: show success without redirect
+        $flash = 'Du er registrert!'; // fallback: show success without redirect
       }
     } catch (Throwable $e) {
       $code = method_exists($e, 'getCode') ? $e->getCode() : 0;
       if ($code == 1062) {
-        $err = 'Brukernavn finnes fra før. Velg et annet.';
+        $err = 'Studenten er allerede registrert (brukernavn finnes).';
       } elseif ($code == 1452) { // FK fail (ukjent klassekode)
         $err = 'Ugyldig klassekode. Velg en eksisterende klasse.';
       } else {
@@ -46,23 +49,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
   <meta charset="UTF-8">
   <title>Registrer student</title>
-  <script src="./funksjoner.js?v=1"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function(){
-      if (typeof visSuksessFraQuery === 'function') {
-        visSuksessFraQuery('Student registrert!', 'ok');
-      }
-    });
-  </script>
+  <style>.msg{margin:.5rem 0;padding:.5rem .75rem;border-radius:.25rem}.ok{background:#eaffea;border:1px solid #b6e3b6}.err{background:#ffecec;border:1px solid #f5b5b5}</style>
 </head>
 <body>
   <h1>Registrer ny student</h1>
-  <?php if ($ok): ?>
-    <p style="background:#eef;border:1px solid #99f;padding:.5rem">Student registrert!</p>
-    <script>(typeof visBekreftelse==='function'?visBekreftelse:alert)('Student registrert!');</script>
+  <?php if ($flash): ?>
+    <p class="msg ok"><?php echo htmlspecialchars($flash); ?></p>
   <?php endif; ?>
   <?php if ($err): ?>
-    <p style="background:#fee;border:1px solid #f99;padding:.5rem"><?php echo htmlspecialchars($err); ?></p>
+    <p class="msg err"><?php echo htmlspecialchars($err); ?></p>
   <?php endif; ?>
 
   <form method="post">
@@ -91,3 +86,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <p><a href="../index.php">Tilbake til hovedsiden</a></p>
 </body>
 </html>
+
+
+

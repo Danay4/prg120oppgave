@@ -1,37 +1,39 @@
 <?php
 require_once __DIR__ . '/../db.php';
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
-// Friendly feedback flags
-$err = ""; $ok = isset($_GET['ok']);
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
-if ($_SERVER['REQUEST_METHOD']==='POST') {
+$err = '';
+$flash = $_SESSION['flash_success'] ?? '';
+if ($flash !== '') { unset($_SESSION['flash_success']); }
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $kode = trim($_POST['klassekode'] ?? '');
   $navn = trim($_POST['klassenavn'] ?? '');
   $stud = trim($_POST['studiumkode'] ?? '');
-  if ($kode==='' || $navn==='' || $stud==='') {
-    $err = "Fyll ut alle feltene.";
+  if ($kode === '' || $navn === '' || $stud === '') {
+    $err = 'Fyll ut alle feltene.';
   } elseif (strlen($kode) > 5) {
-    $err = "Klassekode kan være maks 5 tegn.";
+    $err = 'Klassekode kan være maks 5 tegn.';
   } else {
-    $stmt = mysqli_prepare($db, "INSERT INTO klasse(klassekode, klassenavn, studiumkode) VALUES (?,?,?)");
-    mysqli_stmt_bind_param($stmt, "sss", $kode, $navn, $stud);
     try {
-      // Success
+      $stmt = mysqli_prepare($db, "INSERT INTO klasse(klassekode, klassenavn, studiumkode) VALUES (?,?,?)");
+      mysqli_stmt_bind_param($stmt, 'sss', $kode, $navn, $stud);
       mysqli_stmt_execute($stmt);
       mysqli_stmt_close($stmt);
       if (!headers_sent()) {
-        header("Location: klasse_add.php?ok=1");
+        $_SESSION['flash_success'] = 'Klasse registrert!';
+        header('Location: klasse_add.php');
         exit;
       } else {
-        $ok = true; // fallback if redirect headers already sent
+        $flash = 'Klasse registrert!';
       }
     } catch (Throwable $e) {
-      // Duplicate key -> user-friendly message
       $code = method_exists($e, 'getCode') ? $e->getCode() : 0;
       if ($code == 1062) {
-        $err = "Klassekode finnes fra før. Velg en annen.";
+        $err = 'Klassen er allerede registrert (klassekode finnes).';
       } else {
-        $err = "Kunne ikke lagre på grunn av en teknisk feil.";
+        $err = 'Kunne ikke lagre på grunn av en teknisk feil.';
       }
     }
   }
@@ -41,24 +43,19 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
 <html lang="no">
 <head>
   <meta charset="utf-8"><title>Klasser – legg til</title>
-  <style>label{display:block;margin:.4rem 0}input,button{padding:.4rem}</style>
-  <script src="./funksjoner.js?v=1"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function(){
-      if (typeof visSuksessFraQuery === 'function') {
-        visSuksessFraQuery('Klasse registrert!', 'ok');
-      }
-    });
-  </script>
+  <style>
+    label{display:block;margin:.4rem 0}
+    input,button{padding:.4rem}
+    .msg{margin:.5rem 0;padding:.5rem .75rem;border-radius:.25rem}
+    .ok{background:#eaffea;border:1px solid #b6e3b6}
+    .err{background:#ffecec;border:1px solid #f5b5b5}
+  </style>
 </head>
 <body>
   <a href="klasse_list.php">← Til liste</a>
   <h1>Legg til klasse</h1>
-  <?php if($ok): ?>
-    <p style="background:#eef;border:1px solid #99f;padding:.5rem">Lagret!</p>
-    <script>(typeof visBekreftelse==='function'?visBekreftelse:alert)('Klasse registrert!');</script>
-  <?php endif; ?>
-  <?php if($err): ?><p style="background:#fee;border:1px solid #f99;padding:.5rem"><?= htmlspecialchars($err) ?></p><?php endif; ?>
+  <?php if ($flash): ?><p class="msg ok"><?= htmlspecialchars($flash) ?></p><?php endif; ?>
+  <?php if ($err): ?><p class="msg err"><?= htmlspecialchars($err) ?></p><?php endif; ?>
 
   <form method="post">
     <label>Klassekode (maks 5)
@@ -74,6 +71,5 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
   </form>
 </body>
 </html>
-
 
 

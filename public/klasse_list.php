@@ -9,7 +9,7 @@ $result = mysqli_query($db, "SELECT klassekode, klassenavn, studiumkode FROM kla
   <style>table{border-collapse:collapse}td,th{border:1px solid #ccc;padding:.4rem}</style>
 </head>
 <body>
-  <a href="index.php">← Til meny</a> | 
+  <a href="../index.php">← Til meny</a> | 
   <a href="klasse_add.php">Legg til</a> | 
   <a href="klasse_delete.php">Slett</a>
   <h1>Alle klasser</h1>
@@ -30,4 +30,5 @@ $result = mysqli_query($db, "SELECT klassekode, klassenavn, studiumkode FROM kla
   </table>
 </body>
 </html>
+
 

@@ -83,9 +83,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <input type="submit" value="Lagre student">
   </form>
 
-  <p><a href="index.php">Tilbake til hovedsiden</a></p>
+  <p><a href="../index.php">Tilbake til hovedsiden</a></p>
 </body>
 </html>
+
 
 
 

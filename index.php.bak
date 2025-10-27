@@ -1,20 +1,16 @@
- <!doctype html>
+<?php
+if (!headers_sent()) {
+  header('Location: public/index.php', true, 302);
+  exit;
+}
+?>
+<!doctype html>
 <html lang="no">
-<head><meta charset="utf-8"><title>PRG120 â€“ Vedlikeholdsapp</title></head>
+<head>
+  <meta charset="utf-8"><title>PRG120 – Vedlikeholdsapp</title>
+</head>
 <body>
-  <h1>PRG120 â€“ Vedlikeholdsapp</h1>
-  <h2>Klasse</h2>
-  <ul>
-    <li><a href="public/klasse_list.php">Vis alle</a></li>
-    <li><a href="public/klasse_add.php">Registrer ny</a></li>
-    <li><a href="public/klasse_delete.php">Slett</a></li>
-  </ul>
-  <h2>Student</h2>
-  <ul>
-    <li><a href="public/student_list.php">Vis alle</a></li>
-    <li><a href="public/student_add.php">Registrer ny</a></li>
-    <li><a href="public/student_delete.php">Slett</a></li>
-  </ul>
+  <p>Videresender til meny … Hvis ikke, klikk her: <a href="public/index.php">Meny</a></p>
 </body>
 </html>
 

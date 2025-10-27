@@ -43,7 +43,7 @@ $res->close();
   <meta charset="utf-8">
   <title>Slett klasse</title>
   <!-- you are inside /public, so no "public/" prefix -->
-  <script src="funksjoner.js"></script>
+  <script src="./funksjoner.js?v=1"></script>
   <style>
     table { border-collapse: collapse; }
     th, td { border: 1px solid #bbb; padding: .4rem .6rem; }
@@ -79,7 +79,7 @@ $res->close();
       <td><?= htmlspecialchars($row['studiumkode']) ?></td>
       <td>
         <!-- POST per row + confirm -->
-        <form method="post" onsubmit="return bekreft()" style="display:inline;">
+        <form method="post" onsubmit="return (typeof bekreft === 'function') ? bekreft() : confirm('Er du sikker?')" style="display:inline;">
           <input type="hidden" name="klassekode" value="<?= htmlspecialchars($row['klassekode']) ?>">
           <button type="submit">Slett</button>
         </form>

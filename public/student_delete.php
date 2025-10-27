@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
   <meta charset="utf-8">
   <title>Slett student</title>
-  <script src="funksjoner.js"></script>
+  <script src="./funksjoner.js?v=1"></script>
   <style>
     table { border-collapse: collapse; }
     th, td { border: 1px solid #bbb; padding: .4rem .6rem; }
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <td><?= htmlspecialchars($r['fornavn'] . ' ' . $r['etternavn']) ?></td>
       <td><?= htmlspecialchars($r['klassekode']) ?></td>
       <td>
-        <form method="post" onsubmit="return bekreft()" style="display:inline;">
+        <form method="post" onsubmit="return (typeof bekreft === 'function') ? bekreft() : confirm('Er du sikker?')" style="display:inline;">
           <input type="hidden" name="brukernavn" value="<?= htmlspecialchars($r['brukernavn']) ?>">
           <button type="submit">Slett</button>
         </form>
